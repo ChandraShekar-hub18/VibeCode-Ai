@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VibeCode AI — Verified Architecture + Blocker Learning Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #09090b;
+    --surface: #111114;
+    --border: #1f1f23;
+    --accent: #22d3ee;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --purple: #a78bfa;
+    --pink: #f472b6;
+    --text: #e4e4e7;
+    --muted: #52525b;
+    --card: #131316;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Lora',serif; font-size:16px; line-height:1.8; }
+
+  .container { max-width:1060px; margin:0 auto; padding:0 32px; }
+
+  /* HEADER */
+  header { padding:72px 0 56px; border-bottom:1px solid var(--border); }
+  .badge {
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(34,211,238,0.08); border:1px solid rgba(34,211,238,0.2);
+    color:var(--accent); font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
+    padding:5px 14px; border-radius:100px; margin-bottom:24px;
+  }
+  h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(32px,5vw,58px); line-height:1.05; letter-spacing:-0.02em; color:#fff; margin-bottom:16px; }
+  h1 em { font-style:normal; color:var(--accent); }
+  .header-desc { color:#71717a; font-size:17px; font-style:italic; max-width:580px; }
+
+  .stamp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:40px; }
+  .stamp { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:18px 20px; }
+  .stamp-label { font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:6px; }
+  .stamp-val { font-family:'Syne',sans-serif; font-weight:700; font-size:14px; color:var(--text); }
+
+  /* SECTIONS */
+  section { padding:56px 0; border-bottom:1px solid var(--border); }
+  .sec-header { display:flex; align-items:center; gap:14px; margin-bottom:36px; }
+  .sec-num { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); opacity:0.6; min-width:28px; }
+  h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:26px; letter-spacing:-0.01em; color:#fff; }
+  h3 { font-family:'Syne',sans-serif; font-weight:600; font-size:17px; color:var(--text); margin:24px 0 10px; }
+  p { color:#a1a1aa; margin-bottom:14px; }
+
+  /* BLOCKER CARDS — THE MAIN FEATURE */
+  .blocker-card {
+    border-radius:16px; margin-bottom:32px;
+    border:1px solid; overflow:hidden;
+  }
+  .blocker-header {
+    padding:20px 28px; display:flex; align-items:center; gap:16px;
+  }
+  .blocker-icon { font-size:28px; min-width:40px; }
+  .blocker-title-group { flex:1; }
+  .blocker-label {
+    font-family:'JetBrains Mono',monospace; font-size:10px;
+    text-transform:uppercase; letter-spacing:0.12em; margin-bottom:4px;
+  }
+  .blocker-title { font-family:'Syne',sans-serif; font-weight:700; font-size:19px; }
+  .blocker-difficulty {
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    padding:4px 12px; border-radius:100px; font-weight:500;
+  }
+
+  .blocker-body { padding:24px 28px; }
+  .blocker-body p { margin-bottom:12px; }
+
+  /* Stage steps inside blocker */
+  .stages { display:flex; flex-direction:column; gap:0; margin:20px 0; }
+  .stage {
+    display:flex; gap:0; position:relative;
+  }
+  .stage-line {
+    display:flex; flex-direction:column; align-items:center; min-width:44px;
+  }
+  .stage-dot {
+    width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600;
+    flex-shrink:0; z-index:1;
+  }
+  .stage-connector {
+    width:2px; flex:1; min-height:20px; margin:0 auto;
+  }
+  .stage-content { padding:4px 0 28px 16px; flex:1; }
+  .stage-title { font-family:'Syne',sans-serif; font-weight:600; font-size:15px; margin-bottom:6px; }
+  .stage-desc { font-size:14px; color:#71717a; line-height:1.6; }
+
+  /* Stage color themes */
+  .stage-break .stage-dot { background:rgba(248,113,113,0.15); color:var(--red); border:2px solid var(--red); }
+  .stage-break .stage-connector { background:linear-gradient(to bottom,var(--red),var(--yellow)); opacity:0.3; }
+  .stage-break .stage-title { color:var(--red); }
+
+  .stage-understand .stage-dot { background:rgba(251,191,36,0.12); color:var(--yellow); border:2px solid var(--yellow); }
+  .stage-understand .stage-connector { background:linear-gradient(to bottom,var(--yellow),var(--green)); opacity:0.3; }
+  .stage-understand .stage-title { color:var(--yellow); }
+
+  .stage-fix .stage-dot { background:rgba(74,222,128,0.12); color:var(--green); border:2px solid var(--green); }
+  .stage-fix .stage-connector { background:rgba(74,222,128,0.3); opacity:0.3; }
+  .stage-fix .stage-title { color:var(--green); }
+
+  .stage-production .stage-dot { background:rgba(167,139,250,0.12); color:var(--purple); border:2px solid var(--purple); }
+  .stage-production .stage-title { color:var(--purple); }
+
+  /* Blocker color themes */
+  .blocker-red { border-color:rgba(248,113,113,0.25); }
+  .blocker-red .blocker-header { background:rgba(248,113,113,0.06); }
+  .blocker-red .blocker-label { color:var(--red); }
+  .blocker-red .blocker-title { color:var(--red); }
+  .blocker-red .blocker-difficulty { background:rgba(248,113,113,0.12); color:var(--red); border:1px solid rgba(248,113,113,0.2); }
+
+  .blocker-yellow { border-color:rgba(251,191,36,0.25); }
+  .blocker-yellow .blocker-header { background:rgba(251,191,36,0.05); }
+  .blocker-yellow .blocker-label { color:var(--yellow); }
+  .blocker-yellow .blocker-title { color:var(--yellow); }
+  .blocker-yellow .blocker-difficulty { background:rgba(251,191,36,0.12); color:var(--yellow); border:1px solid rgba(251,191,36,0.2); }
+
+  .blocker-purple { border-color:rgba(167,139,250,0.25); }
+  .blocker-purple .blocker-header { background:rgba(167,139,250,0.05); }
+  .blocker-purple .blocker-label { color:var(--purple); }
+  .blocker-purple .blocker-title { color:var(--purple); }
+  .blocker-purple .blocker-difficulty { background:rgba(167,139,250,0.12); color:var(--purple); border:1px solid rgba(167,139,250,0.2); }
+
+  /* interview box */
+  .interview-box {
+    background:rgba(34,211,238,0.05); border:1px solid rgba(34,211,238,0.2);
+    border-radius:12px; padding:20px 24px; margin-top:20px;
+  }
+  .interview-label {
+    font-family:'JetBrains Mono',monospace; font-size:10px;
+    text-transform:uppercase; letter-spacing:0.1em; color:var(--accent);
+    margin-bottom:10px;
+  }
+  .interview-q {
+    font-style:italic; font-size:14px; color:#a1a1aa; margin-bottom:6px;
+  }
+  .interview-a {
+    font-size:14px; color:var(--text); line-height:1.6;
+  }
+
+  /* code inline */
+  code {
+    font-family:'JetBrains Mono',monospace; font-size:12px;
+    background:rgba(255,255,255,0.07); border:1px solid var(--border);
+    padding:2px 8px; border-radius:4px; color:var(--accent);
+  }
+
+  /* code block */
+  .code-block {
+    background:#0d0d10; border:1px solid var(--border);
+    border-radius:10px; padding:20px 24px; margin:14px 0;
+    font-family:'JetBrains Mono',monospace; font-size:12px;
+    line-height:1.8; overflow-x:auto;
+  }
+  .code-block .comment { color:#4a4a5a; }
+  .code-block .key { color:#a78bfa; }
+  .code-block .val { color:#4ade80; }
+  .code-block .str { color:#fbbf24; }
+  .code-block .err { color:#f87171; }
+  .code-block .ann { color:#f472b6; }
+
+  /* what you learn chips */
+  .learn-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+  .learn-chip {
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    padding:4px 12px; border-radius:6px;
+    background:rgba(74,222,128,0.08); color:var(--green);
+    border:1px solid rgba(74,222,128,0.2);
+  }
+
+  /* phase table */
+  .phase-table { width:100%; border-collapse:collapse; border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-top:8px; }
+  .phase-table th { background:rgba(34,211,238,0.07); padding:14px 18px; text-align:left; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); border-bottom:1px solid var(--border); }
+  .phase-table td { padding:14px 18px; border-bottom:1px solid var(--border); font-size:14px; color:#a1a1aa; vertical-align:top; }
+  .phase-table tr:last-child td { border-bottom:none; }
+  .phase-table tr:hover td { background:rgba(255,255,255,0.02); }
+  .phase-table td:first-child { font-family:'Syne',sans-serif; font-weight:600; color:var(--text); min-width:130px; }
+  .phase-tag { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10px; padding:2px 8px; border-radius:4px; margin-right:4px; margin-bottom:2px; }
+  .tag-core { background:rgba(34,211,238,0.1); color:var(--accent); border:1px solid rgba(34,211,238,0.2); }
+  .tag-blocker { background:rgba(248,113,113,0.1); color:var(--red); border:1px solid rgba(248,113,113,0.2); }
+  .tag-warn { background:rgba(251,191,36,0.1); color:var(--yellow); border:1px solid rgba(251,191,36,0.2); }
+  .tag-pass { background:rgba(74,222,128,0.1); color:var(--green); border:1px solid rgba(74,222,128,0.2); }
+
+  /* warning cards */
+  .warn-card { background:rgba(251,191,36,0.05); border:1px solid rgba(251,191,36,0.2); border-radius:12px; padding:20px 24px; margin-bottom:20px; }
+  .warn-title { font-family:'Syne',sans-serif; font-weight:600; font-size:15px; color:var(--yellow); margin-bottom:8px; }
+  .warn-body { font-size:14px; color:#a1a1aa; line-height:1.6; }
+
+  /* pass card */
+  .pass-card { background:rgba(74,222,128,0.05); border:1px solid rgba(74,222,128,0.2); border-radius:12px; padding:20px 24px; margin-bottom:16px; display:flex; gap:16px; align-items:flex-start; }
+  .pass-icon { font-size:20px; margin-top:2px; }
+  .pass-title { font-family:'Syne',sans-serif; font-weight:600; font-size:15px; color:var(--green); margin-bottom:6px; }
+  .pass-body { font-size:14px; color:#a1a1aa; line-height:1.6; }
+
+  footer { padding:40px 0; text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); }
+
+  @media(max-width:720px) {
+    .stamp-grid { grid-template-columns:repeat(2,1fr); }
+    .blocker-header { flex-wrap:wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ══════════════════════════════════════════ -->
+<!-- HEADER                                     -->
+<!-- ══════════════════════════════════════════ -->
+<header>
+  <div class="badge">✦ Verified Architecture · Cross-Check Complete</div>
+  <h1>VibeCode <em>AI</em><br>Blocker Learning Plan</h1>
+  <p class="header-desc">Full architecture kept intact. Every blocker becomes a deliberate lesson — break it, understand why, fix it properly.</p>
+
+  <div class="stamp-grid">
+    <div class="stamp">
+      <div class="stamp-label">Approach</div>
+      <div class="stamp-val">Learn Through Blockers</div>
+    </div>
+    <div class="stamp">
+      <div class="stamp-label">Blockers Found</div>
+      <div class="stamp-val">2 Hard · 3 Warnings</div>
+    </div>
+    <div class="stamp">
+      <div class="stamp-label">Architecture Status</div>
+      <div class="stamp-val" style="color:var(--green)">Locked & Verified ✓</div>
+    </div>
+    <div class="stamp">
+      <div class="stamp-label">LLM Strategy</div>
+      <div class="stamp-val">Ollama + CodeLlama 7B</div>
+    </div>
+    <div class="stamp">
+      <div class="stamp-label">Hardware Fit</div>
+      <div class="stamp-val" style="color:var(--green)">Good (16GB + 6GB VRAM)</div>
+    </div>
+    <div class="stamp">
+      <div class="stamp-label">Priority #1</div>
+      <div class="stamp-val">Deep Understanding</div>
+    </div>
+  </div>
+</header>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SECTION 1 — BLOCKER 1                      -->
+<!-- ══════════════════════════════════════════ -->
+<section>
+  <div class="sec-header">
+    <span class="sec-num">01</span>
+    <h2>Blocker #1 — Docker-in-Docker</h2>
+  </div>
+
+  <div class="blocker-card blocker-red">
+    <div class="blocker-header">
+      <div class="blocker-icon">🐳</div>
+      <div class="blocker-title-group">
+        <div class="blocker-label">🔴 Hard Blocker · Code Executor Service</div>
+        <div class="blocker-title">Docker-in-Docker (DinD) Sandboxed Execution</div>
+      </div>
+      <div class="blocker-difficulty">Difficulty: Hard</div>
+    </div>
+    <div class="blocker-body">
+
+      <p>The Code Executor Service needs to run user-generated code safely inside an isolated container. The naive approach — spinning up Docker containers from within your Spring Boot service — is called Docker-in-Docker and it will immediately hit a wall on most developer machines.</p>
+
+      <h3>Your 4-Stage Learning Journey</h3>
+
+      <div class="stages">
+
+        <div class="stage stage-break">
+          <div class="stage-line">
+            <div class="stage-dot">1</div>
+            <div class="stage-connector"></div>
+          </div>
+          <div class="stage-content">
+            <div class="stage-title">BREAK IT — Build the naive approach first</div>
+            <div class="stage-desc">
+              Mount the Docker socket into your Spring Boot container and use the Docker Java SDK to spin up child containers. Run it. You will get a permission denied error on the Docker socket, or the container will start but have no network access, or it will escape resource limits silently.
+              <div class="code-block">
+<span class="comment"># What you'll write first (naive)</span>
+<span class="comment"># docker-compose.yml</span>
+<span class="key">code-executor:</span>
+  <span class="key">volumes:</span>
+    <span class="val">- /var/run/docker.sock:/var/run/docker.sock</span>  <span class="err"># This is the problem</span>
+              </div>
+              What breaks: The Docker daemon runs as root. Your service doesn't. The socket mount works on Linux but behaves differently on Docker Desktop (Mac/Windows). And even when it works — any code run inside can see the host Docker socket and escape the sandbox completely. This is a real CVE-class vulnerability.
+            </div>
+          </div>
+        </div>
+
+        <div class="stage stage-understand">
+          <div class="stage-line">
+            <div class="stage-dot">2</div>
+            <div class="stage-connector"></div>
+          </div>
+          <div class="stage-content">
+            <div class="stage-title">UNDERSTAND IT — Why DinD is genuinely hard</div>
+            <div class="stage-desc">
+              Spend time understanding the Docker architecture — the daemon, client, socket, and namespace isolation. Learn what <code>--privileged</code> mode actually does (it disables ALL Linux security modules — seccomp, AppArmor, capabilities). Understand why companies like Google Cloud Run, AWS Lambda, and Replit use separate VM-level isolation (gVisor, Firecracker) not DinD for user code execution. This is exactly the kind of infrastructure knowledge that separates mid-level from senior engineers.
+            </div>
+          </div>
+        </div>
+
+        <div class="stage stage-fix">
+          <div class="stage-line">
+            <div class="stage-dot">3</div>
+            <div class="stage-connector"></div>
+          </div>
+          <div class="stage-content">
+            <div class="stage-title">FIX IT — Proper DinD with rootless Docker + resource limits</div>
+            <div class="stage-desc">
+              Implement it correctly using rootless Docker mode + the Docker Java SDK with explicit resource constraints. This is what you'll learn from the Java Executor Framework + Docker modules in the cohort.
+              <div class="code-block">
+<span class="comment">// Code Executor Service — proper implementation</span>
+<span class="ann">@Service</span>
+<span class="key">public class</span> DockerExecutorService {
+
+  <span class="key">private final</span> DockerClient dockerClient;
+
+  <span class="key">public</span> ExecutionResult execute(String code, String language) {
+    <span class="comment">// 1. Create container with hard resource limits</span>
+    CreateContainerResponse container = dockerClient
+      .createContainerCmd(<span class="str">"code-runner:" + language</span>)
+      .withHostConfig(HostConfig.newHostConfig()
+        .withMemory(128 * 1024 * 1024L)   <span class="comment">// 128MB max RAM</span>
+        .withCpuQuota(50000L)              <span class="comment">// 50% of one CPU</span>
+        .withNetworkMode(<span class="str">"none"</span>)          <span class="comment">// NO network access</span>
+        .withReadonlyRootfs(true)          <span class="comment">// read-only filesystem</span>
+        .withCapDrop(Capability.ALL))      <span class="comment">// drop all Linux caps</span>
+      .exec();
+
+    <span class="comment">// 2. Run with Java Executor + hard timeout</span>
+    Future&lt;String&gt; future = executor.submit(() -&gt; runContainer(container));
+    <span class="key">return</span> future.get(10, TimeUnit.SECONDS);  <span class="comment">// 10s timeout</span>
+  }
+}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage stage-production">
+          <div class="stage-line">
+            <div class="stage-dot">4</div>
+          </div>
+          <div class="stage-content">
+            <div class="stage-title">PRODUCTION THINKING — How Replit/Lovable actually do it</div>
+            <div class="stage-desc">
+              Research and document how real platforms solve this at scale. Replit uses gVisor (Google's user-space kernel). AWS Lambda uses Firecracker microVMs. Understand why your DinD implementation is a valid learning exercise but would need to evolve for real production traffic. This becomes a talking point in interviews where you can say "I understand the tradeoffs between DinD and VM-level isolation and why companies choose one over the other."
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="interview-box">
+        <div class="interview-label">💬 What You Can Say in an Interview</div>
+        <div class="interview-q">"Tell me about a time you dealt with container security."</div>
+        <div class="interview-a">"I built a sandboxed code execution service for an AI SaaS platform. My first approach was Docker socket mounting — I hit privilege escalation issues and understood why that's a CVE risk. I then implemented rootless Docker with capability dropping, memory limits, and no-network mode using the Docker Java SDK. I also researched how production systems like Replit and AWS Lambda use gVisor and Firecracker for stronger isolation."</div>
+      </div>
+
+      <div class="learn-chips">
+        <span class="learn-chip">Docker Architecture Deep Dive</span>
+        <span class="learn-chip">Linux Namespaces & cgroups</span>
+        <span class="learn-chip">Docker Java SDK</span>
+        <span class="learn-chip">Java Executor Framework</span>
+        <span class="learn-chip">Container Security</span>
+        <span class="learn-chip">Resource Limits</span>
+        <span class="learn-chip">Rootless Docker</span>
+        <span class="learn-chip">gVisor / Firecracker concepts</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SECTION 2 — BLOCKER 2                      -->
+<!-- ══════════════════════════════════════════ -->
+<section>
+  <div class="sec-header">
+    <span class="sec-num">02</span>
+    <h2>Blocker #2 — JWT Across Microservices</h2>
+  </div>
+
+  <div class="blocker-card blocker-red">
+    <div class="blocker-header">
+      <div class="blocker-icon">🔐</div>
+      <div class="blocker-title-group">
+        <div class="blocker-label">🔴 Hard Blocker · Auth + All Services</div>
+        <div class="blocker-title">Inter-Service JWT Propagation & Trust Model</div>
+      </div>
+      <div class="blocker-difficulty">Difficulty: Hard</div>
+    </div>
+    <div class="blocker-body">
+
+      <p>You've planned JWT for the API Gateway — great. But the moment one microservice needs to call another (AI Gen Service calls Project Service to save generated code), you hit a design gap: who validates the token? Does Service B trust Service A blindly? What if someone calls Service B directly bypassing the Gateway?</p>
+
+      <div class="stages">
+
+        <div class="stage stage-break">
+          <div class="stage-line">
+            <div class="stage-dot">1</div>
+            <div class="stage-connector"></div>
+          </div>
+          <div class="stage-content">
+            <div class="stage-title">BREAK IT — Build with no inter-service auth first</div>
+            <div class="stage-desc">
+              Implement the Gateway JWT validation. Then have AI Gen Service call Project Service via OpenFeign with no token. It works fine. Now directly hit Project Service from Postman (bypassing Gateway) — it will happily accept the request. Your security is gateway-only and you have no defense-in-depth. This is the exact security mistake that caused real data breaches in microservice architectures.
+            </div>
+          </div>
+        </div>
+
+        <div class="stage stage-understand">
+          <div class="stage-line">
+            <div class="stage-dot">2</div>
+            <div class="stage-connector"></div>
+          </div>
+          <div class="stage-content">
+            <div class="stage-title">UNDERSTAND IT — The 3 patterns every team debates</div>
+            <div class="stage-desc">
+              Study the three real approaches to inter-service security and understand the tradeoffs of each:
+              <br><br>
+              <strong style="color:#e4e4e7">Pattern A — Gateway-only trust (network perimeter):</strong> Only the Gateway validates tokens. Internal services trust all internal network calls. Simple. Works only if your internal network is truly private. Breaks in cloud environments where services are publicly reachable.
+              <br><br>
+              <strong style="color:#e4e4e7">Pattern B — JWT forwarding (what you'll implement):</strong> Gateway validates and forwards the original JWT header. Each service also validates JWT on every call. Defense-in-depth. Zero-trust minded. More CPU (verify on every hop) but genuinely secure.
+              <br><br>
+              <strong style="color:#e4e4e7">Pattern C — Service-to-service tokens (mTLS / service accounts):</strong> Each service has its own identity token separate from the user token. This is what Kubernetes service accounts and Istio service mesh do. Production-grade but complex to set up.
+            </div>
+          </div>
+        </div>
+
+        <div class="stage stage-fix">
+          <div class="stage-line">
+            <div class="stage-dot">3</div>
+            <div class="stage-connector"></div>
+          </div>
+          <div class="stage-content">
+            <div class="stage-title">FIX IT — Pattern B with OpenFeign RequestInterceptor</div>
+            <div class="stage-desc">
+              Implement JWT forwarding using OpenFeign's RequestInterceptor. This automatically propagates the user's JWT to every downstream service call — and each service validates it independently.
+              <div class="code-block">
+<span class="comment">// 1. OpenFeign interceptor — propagates JWT to downstream calls</span>
+<span class="ann">@Component</span>
+<span class="key">public class</span> FeignJwtInterceptor <span class="key">implements</span> RequestInterceptor {
+
+  <span class="ann">@Override</span>
+  <span class="key">public void</span> apply(RequestTemplate template) {
+    ServletRequestAttributes attrs =
+      (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    <span class="key">if</span> (attrs != null) {
+      String jwt = attrs.getRequest().getHeader(<span class="str">"Authorization"</span>);
+      <span class="key">if</span> (jwt != null) {
+        template.header(<span class="str">"Authorization"</span>, jwt); <span class="comment">// forward token</span>
+      }
+    }
+  }
+}
+
+<span class="comment">// 2. Each service validates JWT independently</span>
+<span class="ann">@Component</span>
+<span class="key">public class</span> JwtAuthFilter <span class="key">extends</span> OncePerRequestFilter {
+  <span class="ann">@Override</span>
+  <span class="key">protected void</span> doFilterInternal(...) {
+    String token = extractToken(request);
+    <span class="key">if</span> (jwtService.isValid(token)) {
+      <span class="comment">// set SecurityContext — service is now auth-aware</span>
+      SecurityContextHolder.getContext()
+        .setAuthentication(createAuth(token));
+    }
+    filterChain.doFilter(request, response);
+  }
+}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage stage-production">
+          <div class="stage-line">
+            <div class="stage-dot">4</div>
+          </div>
+          <div class="stage-content">
+            <div class="stage-title">PRODUCTION THINKING — Zero Trust & mTLS</div>
+            <div class="stage-desc">
+              Research Istio service mesh and how it implements mutual TLS (mTLS) between services automatically — no JWT forwarding needed because the network itself is authenticated. Understand how Kubernetes RBAC + service accounts works. Document the evolution: your Pattern B → production Pattern C. This is senior-level architecture thinking.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="interview-box">
+        <div class="interview-label">💬 What You Can Say in an Interview</div>
+        <div class="interview-q">"How did you secure communication between your microservices?"</div>
+        <div class="interview-a">"I first built it with gateway-only JWT validation and demonstrated the vulnerability — you could bypass the gateway and call internal services directly. I then implemented JWT forwarding via OpenFeign's RequestInterceptor with independent validation on each service. I also researched how production systems use mTLS with Istio service mesh as the next evolution, which eliminates the need for application-level token propagation entirely."</div>
+      </div>
+
+      <div class="learn-chips">
+        <span class="learn-chip">JWT Deep Internals</span>
+        <span class="learn-chip">Spring Security Filter Chain</span>
+        <span class="learn-chip">OpenFeign RequestInterceptor</span>
+        <span class="learn-chip">Zero Trust Architecture</span>
+        <span class="learn-chip">Defense in Depth</span>
+        <span class="learn-chip">mTLS Concepts</span>
+        <span class="learn-chip">SecurityContext Propagation</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SECTION 3 — WARNINGS                       -->
+<!-- ══════════════════════════════════════════ -->
+<section>
+  <div class="sec-header">
+    <span class="sec-num">03</span>
+    <h2>3 Warnings — Learn These Too, In Order</h2>
+  </div>
+
+  <div class="blocker-card blocker-yellow">
+    <div class="blocker-header">
+      <div class="blocker-icon">⚠️</div>
+      <div class="blocker-title-group">
+        <div class="blocker-label">⚠️ Warning · AI Layer</div>
+        <div class="blocker-title">pgvector — Not in Default PostgreSQL Image</div>
+      </div>
+      <div class="blocker-difficulty">Difficulty: Medium</div>
+    </div>
+    <div class="blocker-body">
+      <p>pgvector is a PostgreSQL extension. It doesn't ship with the standard <code>postgres:latest</code> Docker image. If you pull standard postgres, <code>CREATE EXTENSION vector;</code> will fail with "extension not found." You will waste time thinking it's a Spring configuration problem when it's actually an image problem.</p>
+      <h3>Break → Understand → Fix</h3>
+      <p><strong style="color:#fbbf24">Break it:</strong> Use <code>postgres:16</code> and try to run <code>CREATE EXTENSION vector;</code>. It fails. Now you understand that Docker images are not monolithic — extensions must be explicitly included or compiled in.</p>
+      <p><strong style="color:#fbbf24">Understand it:</strong> Learn how PostgreSQL extensions work — they're C libraries loaded into the server process. <code>shared_preload_libraries</code>, <code>pg_extension</code> catalog, how extensions add functions and types to PostgreSQL's type system.</p>
+      <p><strong style="color:#4ade80">Fix it:</strong> Switch to <code>ankane/pgvector</code> which pre-compiles the extension. Then manually install it in a standard image so you understand exactly what that Docker image is hiding from you.</p>
+      <div class="code-block">
+<span class="comment"># docker-compose.yml — correct image</span>
+<span class="key">postgres-vector:</span>
+  <span class="key">image:</span> <span class="val">ankane/pgvector:latest</span>
+  <span class="key">environment:</span>
+    <span class="val">POSTGRES_DB:</span> <span class="str">vibecode_ai</span>
+  <span class="key">volumes:</span>
+    <span class="val">- ./init.sql:/docker-entrypoint-initdb.d/init.sql</span>
+
+<span class="comment">-- init.sql — run once on startup</span>
+<span class="val">CREATE EXTENSION</span> <span class="key">IF NOT EXISTS</span> vector;
+      </div>
+      <div class="learn-chips">
+        <span class="learn-chip">PostgreSQL Extension System</span>
+        <span class="learn-chip">Docker Image Layers</span>
+        <span class="learn-chip">Vector Embeddings</span>
+        <span class="learn-chip">Spring AI VectorStore</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="blocker-card blocker-yellow">
+    <div class="blocker-header">
+      <div class="blocker-icon">⚠️</div>
+      <div class="blocker-title-group">
+        <div class="blocker-label">⚠️ Warning · LLM Layer</div>
+        <div class="blocker-title">Ollama — Model Size vs Your VRAM Budget</div>
+      </div>
+      <div class="blocker-difficulty">Difficulty: Medium</div>
+    </div>
+    <div class="blocker-body">
+      <p>With 4-6GB VRAM you need to be deliberate about model selection. Pulling the wrong model means it falls back to CPU inference — which is 10-20x slower and will make your app feel broken during development.</p>
+      <h3>Break → Understand → Fix</h3>
+      <p><strong style="color:#fbbf24">Break it:</strong> Pull <code>ollama pull llama3.1:70b</code> and watch it either refuse to load on GPU or crawl at 0.5 tokens/sec on CPU. Then understand why — quantization levels, VRAM math.</p>
+      <p><strong style="color:#fbbf24">Understand it:</strong> Learn model quantization — Q4, Q5, Q8 mean 4-bit, 5-bit, 8-bit weights. A 7B parameter model at Q4 = ~4GB, at Q8 = ~7GB. VRAM must hold the full model for GPU inference. Learn how CPU offloading works (partial GPU, partial RAM).</p>
+      <p><strong style="color:#4ade80">Fix it — Your optimal model stack:</strong></p>
+      <div class="code-block">
+<span class="comment"># Primary — Code generation (fits your VRAM perfectly)</span>
+ollama pull codellama:7b-instruct-q4_K_M   <span class="comment"># ~4GB VRAM, fast</span>
+
+<span class="comment"># Secondary — General chat/RAG (smaller, faster)</span>
+ollama pull mistral:7b-instruct-q4_K_M    <span class="comment"># ~4GB VRAM</span>
+
+<span class="comment"># Spring AI config — swap OpenAI for Ollama (1 line change)</span>
+<span class="comment"># application.yml</span>
+<span class="key">spring:</span>
+  <span class="key">ai:</span>
+    <span class="key">ollama:</span>
+      <span class="key">base-url:</span> <span class="val">http://localhost:11434</span>
+      <span class="key">chat:</span>
+        <span class="key">options:</span>
+          <span class="key">model:</span> <span class="val">codellama:7b-instruct-q4_K_M</span>
+      <span class="key">embedding:</span>
+        <span class="key">options:</span>
+          <span class="key">model:</span> <span class="val">nomic-embed-text</span>  <span class="comment"># for RAG embeddings</span>
+      </div>
+      <div class="learn-chips">
+        <span class="learn-chip">LLM Quantization</span>
+        <span class="learn-chip">VRAM Math</span>
+        <span class="learn-chip">Ollama Architecture</span>
+        <span class="learn-chip">Spring AI Abstraction</span>
+        <span class="learn-chip">Embedding Models</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="blocker-card blocker-purple">
+    <div class="blocker-header">
+      <div class="blocker-icon">⚠️</div>
+      <div class="blocker-title-group">
+        <div class="blocker-label">⚠️ Warning · Microservices</div>
+        <div class="blocker-title">8 Services Running Locally — Memory Explosion</div>
+      </div>
+      <div class="blocker-difficulty">Difficulty: Easy to Miss</div>
+    </div>
+    <div class="blocker-body">
+      <p>8 Spring Boot services + Kafka + Zookeeper + PostgreSQL + MongoDB + Redis + Ollama running simultaneously on 16GB RAM will leave you ~2GB free. Your machine will start swapping to disk and everything will feel broken. This is a real operational problem even senior engineers hit.</p>
+      <h3>Break → Understand → Fix</h3>
+      <p><strong style="color:#fbbf24">Break it:</strong> Spin everything up at once via Docker Compose. Watch your RAM hit 90%, your IDE slow to a crawl, Kafka start dropping messages. Understand that this is a real production concern — not just a dev machine problem.</p>
+      <p><strong style="color:#4ade80">Fix it:</strong> Set explicit JVM heap limits per service in Docker Compose. Spring Boot doesn't cap JVM heap by default — it'll grab as much as it can.</p>
+      <div class="code-block">
+<span class="comment"># docker-compose.yml — JVM limits per service</span>
+<span class="key">auth-service:</span>
+  <span class="key">environment:</span>
+    <span class="val">JAVA_OPTS:</span> <span class="str">"-Xms128m -Xmx256m"</span>   <span class="comment"># 256MB max heap</span>
+
+<span class="key">ai-generation-service:</span>
+  <span class="key">environment:</span>
+    <span class="val">JAVA_OPTS:</span> <span class="str">"-Xms256m -Xmx512m"</span>   <span class="comment"># needs more for AI work</span>
+
+<span class="comment"># Kafka + Zookeeper memory</span>
+<span class="key">kafka:</span>
+  <span class="key">environment:</span>
+    <span class="val">KAFKA_HEAP_OPTS:</span> <span class="str">"-Xmx256m -Xms128m"</span>
+      </div>
+      <p>Also: start services in groups during development — you don't need Billing + Notification running while working on Auth. Use Docker Compose profiles to group services.</p>
+      <div class="learn-chips">
+        <span class="learn-chip">JVM Memory Model</span>
+        <span class="learn-chip">Docker Resource Limits</span>
+        <span class="learn-chip">Docker Compose Profiles</span>
+        <span class="learn-chip">Operational Thinking</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SECTION 4 — PASSES                         -->
+<!-- ══════════════════════════════════════════ -->
+<section>
+  <div class="sec-header">
+    <span class="sec-num">04</span>
+    <h2>What's Solid — No Changes Needed</h2>
+  </div>
+
+  <div class="pass-card">
+    <div class="pass-icon">✅</div>
+    <div>
+      <div class="pass-title">Kafka Event Flow — Clean Design</div>
+      <div class="pass-body">3 topics (generation.complete, user.quota.exceeded, payment.success) with clear producer/consumer ownership. No circular dependencies. AI Gen Service only publishes, never consumes. Billing and Notification are pure consumers. This is textbook event-driven architecture.</div>
+    </div>
+  </div>
+
+  <div class="pass-card">
+    <div class="pass-icon">✅</div>
+    <div>
+      <div class="pass-title">Spring AI Abstraction — Ollama Swap is Trivial</div>
+      <div class="pass-body">Spring AI's <code>ChatModel</code> interface is identical whether you're talking to OpenAI or Ollama. Switch to OpenAI for production by changing 3 lines in application.yml. This is exactly what the cohort's Spring AI module teaches — and it validates the architecture choice perfectly.</div>
+    </div>
+  </div>
+
+  <div class="pass-card">
+    <div class="pass-icon">✅</div>
+    <div>
+      <div class="pass-title">Service Registry (Eureka) — Correct Pattern</div>
+      <div class="pass-body">All services registering with Eureka + Gateway using service names (not hardcoded URLs) is the right pattern. When you move to Kubernetes, Eureka gets replaced by K8s DNS — same concept, different implementation. You'll understand why when you get there.</div>
+    </div>
+  </div>
+
+  <div class="pass-card">
+    <div class="pass-icon">✅</div>
+    <div>
+      <div class="pass-title">Database-per-Service — Correct Microservice Principle</div>
+      <div class="pass-body">Auth/User/Billing on PostgreSQL, Projects on MongoDB, Vectors on pgvector — each service owns its data. No shared database tables across services. This enforces loose coupling. You'll feel the benefit when you change the Project schema and zero other services break.</div>
+    </div>
+  </div>
+
+  <div class="pass-card">
+    <div class="pass-icon">✅</div>
+    <div>
+      <div class="pass-title">RAG Pipeline Design — Architecturally Sound</div>
+      <div class="pass-body">Embed → Store in pgvector → Retrieve top-K → Inject into prompt is the standard RAG pattern. Spring AI's <code>VectorStore</code> abstraction works with pgvector out of the box. The nomic-embed-text model via Ollama is free and produces high-quality embeddings for code.</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SECTION 5 — PHASED BUILD ORDER             -->
+<!-- ══════════════════════════════════════════ -->
+<section>
+  <div class="sec-header">
+    <span class="sec-num">05</span>
+    <h2>Phased Build Order — With Blockers Placed Deliberately</h2>
+  </div>
+
+  <p>Blockers are intentionally placed when you have enough context to understand them — not avoided, not rushed.</p>
+
+  <table class="phase-table">
+    <thead>
+      <tr>
+        <th>Phase</th>
+        <th>Services / Focus</th>
+        <th>Blocker Encountered</th>
+        <th>Cohort Topics</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Phase 1<br><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">Weeks 1-3</span></td>
+        <td>Eureka Registry, API Gateway, Auth Service, User Service</td>
+        <td><span class="phase-tag tag-blocker">JWT across services</span> — hit it here, understand it, fix it before adding more services</td>
+        <td>Spring Boot, Spring Security, JWT, OAuth2, Spring Cloud Gateway, Eureka</td>
+      </tr>
+      <tr>
+        <td>Phase 2<br><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">Weeks 4-5</span></td>
+        <td>Project Service, Config Server, Spring Cloud Bus</td>
+        <td><span class="phase-tag tag-warn">Memory management</span> — 4 services now running, apply JVM limits</td>
+        <td>MongoDB, Spring Data, Config Server, AOP, Actuator, Swagger</td>
+      </tr>
+      <tr>
+        <td>Phase 3<br><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">Weeks 6-7</span></td>
+        <td>AI Generation Service + Ollama + RAG</td>
+        <td><span class="phase-tag tag-warn">pgvector image</span> + <span class="phase-tag tag-warn">Ollama VRAM</span> — both hit here deliberately</td>
+        <td>Spring AI, RAG, Embeddings, Prompt Engineering, MCP Server, pgvector</td>
+      </tr>
+      <tr>
+        <td>Phase 4<br><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">Weeks 8-9</span></td>
+        <td>Kafka, Billing Service, Notification Service, Redis Pub/Sub</td>
+        <td>No new blockers — reward phase after fixing Phase 1-3</td>
+        <td>Apache Kafka, Redis Cache, Redis Pub/Sub, Spring Cache, Transactions</td>
+      </tr>
+      <tr>
+        <td>Phase 5<br><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">Weeks 10-11</span></td>
+        <td>Code Executor Service</td>
+        <td><span class="phase-tag tag-blocker">Docker-in-Docker</span> — tackled last because you need Docker confidence first</td>
+        <td>Docker SDK, Java Executor Framework, Cron Jobs, Container Security, Schedulers</td>
+      </tr>
+      <tr>
+        <td>Phase 6<br><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">Weeks 12-14</span></td>
+        <td>Testing, ELK, Zipkin, CI/CD, Kubernetes</td>
+        <td>K8s replaces Eureka — understand why, feel the difference</td>
+        <td>JUnit, Mockito, ELK Stack, Zipkin, AWS CodePipeline, Kubernetes, Helm</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SECTION 6 — FINAL SIGN-OFF                 -->
+<!-- ══════════════════════════════════════════ -->
+<section>
+  <div class="sec-header">
+    <span class="sec-num">06</span>
+    <h2>Architecture Sign-Off</h2>
+  </div>
+
+  <p>All 5 findings have been reviewed with a <strong style="color:#fff">learn-through approach</strong>. Nothing removed. Every blocker is a milestone.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;">
+    <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:24px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--green);margin-bottom:12px;">✓ Architecture Locked</div>
+      <div style="font-size:14px;color:#71717a;line-height:1.8;">
+        All 8 microservices kept intact<br>
+        All blockers kept as learning milestones<br>
+        Ollama + CodeLlama 7B replaces OpenAI<br>
+        pgvector via ankane/pgvector image<br>
+        Docker-in-Docker tackled in Phase 5<br>
+        JWT inter-service tackled in Phase 1
+      </div>
+    </div>
+    <div style="background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.2);border-radius:12px;padding:24px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--accent);margin-bottom:12px;">→ Next Step</div>
+      <div style="font-size:14px;color:#71717a;line-height:1.8;">
+        Ready to start Phase 1 development:<br><br>
+        1. Set up monorepo structure<br>
+        2. Create all 8 Spring Boot skeletons<br>
+        3. Configure Docker Compose (all services)<br>
+        4. Start Eureka Registry + API Gateway<br>
+        5. Build Auth Service → hit JWT blocker → fix it
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  VibeCode AI · Verified Architecture · Learn-Through-Blockers Edition · Cohort 4.0
+</footer>
+</body>
+</html>
