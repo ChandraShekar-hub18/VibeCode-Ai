@@ -1,0 +1,46 @@
+# version: "3.8"
+services:
+  auth-db:
+    image: bitnami/postgresql
+    container_name: vibecode-auth-db
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - auth-data:/var/lib/postgresql
+
+  user-db:
+    image: bitnami/postgresql
+    container_name: vibecode-user-db
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - user-data:/var/lib/postgresql
+  service-discovery:
+    image: consul:1.15.4
+    container_name: vibecode-consul
+    ports:
+      - "8500:8500"
+
+  project-mongo:
+    image: bitnami/mongodb:latest
+    container_name: vibecode-project-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - project-mongo-data:/data/db
+
+volumes:
+  auth-data:
+    driver: local
+  user-data:
+    driver: local
+  project-mongo-data:
+    driver: local

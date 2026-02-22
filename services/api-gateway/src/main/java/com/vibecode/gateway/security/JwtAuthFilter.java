@@ -24,7 +24,9 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
             "/auth/login",
             "/auth/register",
             "/auth/refresh",
-            "/auth/health"
+            "/auth/health",
+            "/projects/health",
+            "/users/health"
     );
 
     @Override

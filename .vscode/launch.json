@@ -8,7 +8,8 @@
             "mainClass": "com.vibecode.gateway.ApiGatewayApplication",
             "projectName": "api-gateway",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote"
         },
         {
             "type": "java",
@@ -18,7 +19,8 @@
             "mainClass": "com.vibecode.auth.AuthServiceApplication",
             "projectName": "auth-service",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote"
         },
         {
             "type": "java",
@@ -28,7 +30,8 @@
             "mainClass": "com.vibecode.discovery.DiscoveryServerApplication",
             "projectName": "discovery-server",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote"
         },
         {
             "type": "java",
@@ -37,6 +40,16 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "com.vibecode.user.UserServiceApplication",
             "projectName": "user-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ProjectServiceApplication<project-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.vibecode.project.ProjectServiceApplication",
+            "projectName": "project-service",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }
