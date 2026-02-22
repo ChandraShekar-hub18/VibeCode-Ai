@@ -17,8 +17,25 @@ spring:
     user:
       name: "admin"
       password: "{noop}admin"
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        enabled: true
+        register: true
+        service-name: auth-service
 server:
   port: 8081
+# Custom JWT properties (make sure your code reads these as custom properties)
 jwt:
   secret: "your_jwt_secret_key_should_be_long_and_secure_here_change_this_in_production"
   expiration: 3600000 # 1 hour in milliseconds
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

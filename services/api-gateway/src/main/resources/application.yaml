@@ -1,3 +1,26 @@
 spring:
   application:
     name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        enabled: true
+        register: true
+        service-name: api-gateway
+server:
+  port: 8080
+jwt:
+  secret: "your_jwt_secret_key_should_be_long_and_secure_here_change_this_in_production"
+  expiration: 3600000 # 1 hour in milliseconds
