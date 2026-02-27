@@ -16,6 +16,10 @@ spring:
           uri: lb://project-service
           predicates:
             - Path=/projects/**
+        - id: ai-generation-service
+          uri: lb://ai-generation-service
+          predicates:
+            - Path=/ai/**
     consul:
       host: localhost
       port: 8500

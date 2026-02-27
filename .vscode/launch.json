@@ -52,6 +52,16 @@
             "projectName": "project-service",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AiGenerationServiceApplication<ai-generation-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.vibecode.ai_generation.AiGenerationServiceApplication",
+            "projectName": "ai-generation-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

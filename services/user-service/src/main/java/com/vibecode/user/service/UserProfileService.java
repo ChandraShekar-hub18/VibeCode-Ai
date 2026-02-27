@@ -119,4 +119,15 @@ public class UserProfileService {
                 .quotaResetAt(profile.getQuotaResetAt())
                 .build();
     }
+
+    public void incrementUsage(UUID userId, int tokens) {
+
+        UserProfile profile = userProfileRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        profile.setTokensUsed(profile.getTokensUsed() + tokens);
+        profile.setUpdatedAt(LocalDateTime.now());
+
+        userProfileRepository.save(profile);
+    }
 }

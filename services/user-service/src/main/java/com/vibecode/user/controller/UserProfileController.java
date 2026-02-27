@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vibecode.user.dto.CreateUserProfileRequest;
@@ -50,6 +51,15 @@ public class UserProfileController {
     @GetMapping("/{userId}/usage")
     public ResponseEntity<UserUsageResponse> getUserUsage(@PathVariable UUID userId) {
         return ResponseEntity.ok(userProfileService.getUserUsage(userId));
+    }
+
+    @PostMapping("/internal/users/{userId}/usage/increment")
+    public ResponseEntity<Void> incrementUsage(
+            @PathVariable UUID userId,
+            @RequestParam int tokens) {
+
+        userProfileService.incrementUsage(userId, tokens);
+        return ResponseEntity.ok().build();
     }
 
 }
