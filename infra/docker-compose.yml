@@ -1,7 +1,7 @@
 # version: "3.8"
 services:
   auth-db:
-    image: bitnami/postgresql
+    image: soldevelo/postgresql
     container_name: vibecode-auth-db
     environment:
       POSTGRES_DB: auth_db
@@ -13,7 +13,7 @@ services:
       - auth-data:/var/lib/postgresql
 
   user-db:
-    image: bitnami/postgresql
+    image: soldevelo/postgresql
     container_name: vibecode-user-db
     environment:
       POSTGRES_DB: user_db
@@ -30,7 +30,7 @@ services:
       - "8500:8500"
 
   project-mongo:
-    image: bitnami/mongodb:latest
+    image: soldevelo/mongodb:latest
     container_name: vibecode-project-mongo
     ports:
       - "27017:27017"
@@ -46,7 +46,7 @@ services:
       - "2181:2181"
 
   billing-db:
-    image: bitnami/postgresql
+    image: soldevelo/postgresql
     container_name: vibecode-billing-db
     environment:
       POSTGRES_DB: billing_db
